@@ -1,69 +1,40 @@
 #include <iostream>
-#include <vector>
 #include <algorithm>
-#include <iomanip>
 using namespace std;
 
 struct Item {
-    string id;
-    double weight;
-    double value;
-    double ratio;
+    double value, weight;
 };
 
-bool compareItems(const Item& a, const Item& b) {
-    return a.ratio > b.ratio;
-}
-
-void fractionalKnapsack(double capacity, vector<Item>& items) {
-    
-    for (auto &item : items) {
-        item.ratio = item.value / item.weight;
-    }
-
-    sort(items.begin(), items.end(), compareItems);
-
-    double totalValue = 0.0;
-    cout << fixed << setprecision(2);
-    cout << "\nItems taken: "<< endl;
-
-    for (auto &item : items) {
-        if (capacity == 0) break;
-
-        if (item.weight <= capacity) {
-            capacity -= item.weight;
-            totalValue += item.value;
-            cout << item.id << " (Full) - Value: " << item.value << endl;
-        } else {
-            double fraction = capacity / item.weight;
-            totalValue += (item.value * fraction);
-            cout << item.id << " (Fraction: " << fraction 
-                 << ") - Value: " << item.value * fraction << endl;
-            capacity = 0;
-        }
-    }
-
-    cout << "Maximum Profit: " << totalValue << endl;
+bool compare(Item a, Item b) {
+    double r1 = a.value / a.weight;
+    double r2 = b.value / b.weight;
+    return r1 > r2;
 }
 
 int main() {
     int n;
-    double maxCapacity;
+    double W;
+    cin >> n >> W;
 
-    cout << "Enter number of items: ";
-    cin >> n;
+    Item items[100];
 
-    cout << "Enter knapsack capacity: ";
-    cin >> maxCapacity;
+    for(int i=0;i<n;i++)
+        cin >> items[i].value >> items[i].weight;
 
-    vector<Item> items(n);
+    sort(items, items+n, compare);
 
-    cout << "Enter item ID, weight, and value:\n";
-    for (int i = 0; i < n; i++) {
-        cin >> items[i].id >> items[i].weight >> items[i].value;
+    double totalValue = 0.0;
+
+    for(int i=0;i<n;i++){
+        if(items[i].weight <= W){
+            W -= items[i].weight;
+            totalValue += items[i].value;
+        } else {
+            totalValue += items[i].value * (W / items[i].weight);
+            break; // Knapsack full
+        }
     }
 
-    fractionalKnapsack(maxCapacity, items);
-
-    return 0;
+    cout << "Maximum value: " << totalValue;
 }
